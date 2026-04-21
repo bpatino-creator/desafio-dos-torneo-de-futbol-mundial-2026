@@ -12,6 +12,12 @@ private:
     Equipo* equipos;
     int totalEquipos;
 
+    Equipo bombo1[12];
+    Equipo bombo2[12];
+    Equipo bombo3[12];
+    Equipo bombo4[12];
+
+
     Grupo* grupos;
     int totalGrupos;
 
@@ -21,6 +27,10 @@ public:
     void cargarEquipos();
     void crearGrupos();
     void simular();
+    void mostrarEquipos();
+    void ordenarPorRanking();
+    void crearBombos();
+    void mostrarBombos();
 };
 
 #endif

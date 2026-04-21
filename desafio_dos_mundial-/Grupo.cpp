@@ -70,3 +70,8 @@ void Grupo::mostrarTabla() {
         << endl;
     }
 }
+
+int Equipo::getRanking() {
+    return ranking;
+}
+

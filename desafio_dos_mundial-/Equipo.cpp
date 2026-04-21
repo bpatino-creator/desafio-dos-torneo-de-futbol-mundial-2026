@@ -71,3 +71,28 @@ void Equipo::sumarDerrota() {
 int Equipo::getPuntos() {
     return puntos;
 }
+
+Equipo::Equipo(string nombre, string conf, int rank, int gf, int gc) {
+    nombrePais = nombre;
+    confederacion = conf;
+    this->ranking = rank;
+
+    golesFavor = gf;
+    golesContra = gc;
+
+    puntos = 0;
+    ganados = 0;
+    empatados = 0;
+    perdidos = 0;
+
+    cantidadJugadores = 26;
+    jugadores = new Jugador[cantidadJugadores];
+
+    for(int i = 0; i < cantidadJugadores; i++) {
+        jugadores[i] = Jugador("Jugador", i + 1);
+    }
+}
+
+void Equipo::mostrarSimple() {
+    cout << nombrePais << " (Ranking: " << ranking << ")" << endl;
+}

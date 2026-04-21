@@ -17,7 +17,7 @@ private:
     int perdidos;
 
 public:
-    Grupo(char letra);
+    Grupo(char l);
 
     void agregarEquipo(Equipo* e);
     void mostrar();

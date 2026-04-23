@@ -16,9 +16,10 @@ private:
     Equipo bombo2[12];
     Equipo bombo3[12];
     Equipo bombo4[12];
+    Grupo grupos[12];
 
 
-    Grupo* grupos;
+    //Grupo* grupos;
     int totalGrupos;
 
 public:
@@ -31,6 +32,11 @@ public:
     void ordenarPorRanking();
     void crearBombos();
     void mostrarBombos();
+    //void crearGrupos();
+    void mostrarGrupos();
+    void sortearGrupos();
+    void programarFaseGrupos();
+
 };
 
 #endif

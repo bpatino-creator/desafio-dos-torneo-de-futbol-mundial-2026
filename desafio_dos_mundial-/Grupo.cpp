@@ -39,6 +39,14 @@ void Grupo::jugarPartidos() {
         }
     }
 }
+
+int Grupo::getCantidadEquipos() {
+    return cantidadEquipos;
+}
+
+Equipo* Grupo::getEquipo(int i) {
+    return equipos[i];
+}
 /*void Grupo::jugarPartidos() {
     cout << "Partidos del Grupo " << letra << endl;
 
@@ -75,3 +83,22 @@ int Equipo::getRanking() {
     return ranking;
 }
 
+Grupo::Grupo() {
+    letra = '?';
+    cantidadEquipos = 0;
+}
+void Grupo::mostrarSimple() {
+
+    cout << "Grupo " << letra << ": ";
+
+    for(int i = 0; i < cantidadEquipos; i++) {
+
+        cout << equipos[i]->getNombre()
+        << "(" << equipos[i]->getConfederacion() << ")";
+
+        if(i < cantidadEquipos - 1)
+            cout << " | ";
+    }
+
+    cout << endl;
+}

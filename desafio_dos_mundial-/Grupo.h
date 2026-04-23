@@ -18,11 +18,15 @@ private:
 
 public:
     Grupo(char l);
+    Grupo();
 
     void agregarEquipo(Equipo* e);
     void mostrar();
     void jugarPartidos();
     void mostrarTabla();
+    int getCantidadEquipos();
+    Equipo* getEquipo(int i);
+    void mostrarSimple();
 };
 
 #endif

@@ -57,39 +57,14 @@ int main() {
     Mundial m;
 
     m.cargarEquipos();
-
-    //cout << "ANTES DE ORDENAR\n";
-    //m.mostrarEquipos();
-
-    //cout << "---------------------\n";
-
-    //m.ordenarPorRanking();
-
-    //cout << "DESPUES DE ORDENAR\n";
-    //m.mostrarEquipos();
-
-    //cout << "---------------------\n";
-
-    m.crearBombos();   // 🔥 FALTABA ESTO
-
+    m.ordenarPorRanking();
+    m.crearBombos();
     m.mostrarBombos();
+    m.crearGrupos();
+    m.sortearGrupos();
+    m.mostrarGrupos();
+    m.programarFaseGrupos();
 
     return 0;
 }
 
-/*#include <iostream>
-#include <fstream>
-using namespace std;
-
-int main() {
-
-    ifstream archivo("datos.csv.csv");
-
-    if (archivo.is_open()) {
-        cout << "SI ABRIO EL ARCHIVO ✔" << endl;
-    } else {
-        cout << "NO ABRIO EL ARCHIVO ❌" << endl;
-    }
-
-    return 0;
-}*/

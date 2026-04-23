@@ -37,6 +37,7 @@ public:
     int getPuntos();
     int getRanking();
     void mostrarSimple();
+    string getConfederacion();
 };
 
 #endif

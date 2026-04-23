@@ -96,3 +96,7 @@ Equipo::Equipo(string nombre, string conf, int rank, int gf, int gc) {
 void Equipo::mostrarSimple() {
     cout << nombrePais << " (Ranking: " << ranking << ")" << endl;
 }
+
+string Equipo::getConfederacion() {
+    return confederacion;
+}

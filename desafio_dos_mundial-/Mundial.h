@@ -17,6 +17,13 @@ private:
     Equipo bombo3[12];
     Equipo bombo4[12];
     Grupo grupos[12];
+    Equipo* clasificados[32];
+    Equipo* terceros[12];
+    Equipo* ganadores32[16];
+    Equipo* ganadores16[8];
+    Equipo* ganadores8[4];
+    Equipo* finalistas[2];
+    Equipo* perdedoresSemi[2];
 
 
     //Grupo* grupos;
@@ -24,6 +31,7 @@ private:
 
 public:
     Mundial();
+
 
     void cargarEquipos();
     void crearGrupos();
@@ -38,6 +46,12 @@ public:
     void programarFaseGrupos();
     void simularFaseGrupos();
     void clasificarEquipos();
+    void jugarRonda32();
+    void jugarOctavos();
+    void jugarCuartos();
+    void jugarSemifinal();
+    void jugarFinal();
+
 
 };
 

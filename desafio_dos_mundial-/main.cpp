@@ -66,6 +66,11 @@ int main() {
     m.programarFaseGrupos();
     m.simularFaseGrupos();
     m.clasificarEquipos();
+    m.jugarRonda32();
+    m.jugarOctavos();
+    m.jugarCuartos();
+    m.jugarSemifinal();
+    m.jugarFinal();
 
     return 0;
 }

@@ -1,6 +1,7 @@
 #include "Mundial.h"
 #include <fstream>
 #include <cstdlib>  // para rand
+#include "Partido.h"
 
 Mundial::Mundial() {
     totalEquipos = 0;
@@ -257,6 +258,7 @@ void Mundial::programarFaseGrupos() {
     };
 
     // meses correspondientes
+
     int meses[3][6] = {
         {6,6,6,6,6,6},
         {6,6,6,6,7,7},
@@ -350,18 +352,343 @@ void Mundial::simularFaseGrupos() {
 
 void Mundial::clasificarEquipos() {
 
-    cout << "\n===== CLASIFICADOS A OCTAVOS =====\n";
+    int k = 0;
 
     for(int i = 0; i < 12; i++) {
+        clasificados[k++] = grupos[i].getEquipo(0);
+        clasificados[k++] = grupos[i].getEquipo(1);
+        terceros[i] = grupos[i].getEquipo(2);
+    }
 
-        cout << "Grupo " << char('A' + i) << ": ";
+    // ordenar terceros
+    for(int i = 0; i < 11; i++) {
+        for(int j = i + 1; j < 12; j++) {
 
-        Equipo* primero = grupos[i].getEquipo(0);
-        Equipo* segundo = grupos[i].getEquipo(1);
+            int pts_i = terceros[i]->getPuntos();
+            int pts_j = terceros[j]->getPuntos();
 
-        cout << primero->getNombre()
-             << " y "
-             << segundo->getNombre()
-             << endl;
+            int dg_i = terceros[i]->getGolesFavor() - terceros[i]->getGolesContra();
+            int dg_j = terceros[j]->getGolesFavor() - terceros[j]->getGolesContra();
+
+            int gf_i = terceros[i]->getGolesFavor();
+            int gf_j = terceros[j]->getGolesFavor();
+
+            if(pts_j > pts_i ||
+                (pts_j == pts_i && dg_j > dg_i) ||
+                (pts_j == pts_i && dg_j == dg_i && gf_j > gf_i)) {
+
+                Equipo* temp = terceros[i];
+                terceros[i] = terceros[j];
+                terceros[j] = temp;
+            }
+        }
+    }
+
+    // mejores 8 terceros
+    for(int i = 0; i < 8; i++) {
+        clasificados[k++] = terceros[i];
+    }
+
+    cout << "\n===== CLASIFICADOS (32) =====\n";
+    for(int i = 0; i < 32; i++) {
+        cout << clasificados[i]->getNombre() << endl;
     }
 }
+
+void Mundial::jugarRonda32() {
+
+    cout << "\n===== RONDA DE 32 =====\n";
+
+
+    int k = 0;
+    int dia = 10;
+    int mes = 7;
+    int partidosHoy = 0;
+
+    for(int i = 0; i < 32; i += 2) {
+
+        // 🔹 imprimir fecha cuando inicia el día
+        if(partidosHoy == 0) {
+            cout << "\n" << dia << "/" << mes << ":\n";
+        }
+
+        Partido p(clasificados[i], clasificados[i+1]);
+        p.simular();
+
+        if(p.getGoles1() == p.getGoles2()) {
+            cout << "  (Empate -> penales)\n";
+            if(rand()%2 == 0)
+                p.setGoles1(p.getGoles1()+1);
+            else
+                p.setGoles2(p.getGoles2()+1);
+        }
+
+        p.mostrar();
+
+        // guardar ganador
+        if(p.getGoles1() > p.getGoles2())
+            ganadores32[k++] = clasificados[i];
+        else
+            ganadores32[k++] = clasificados[i+1];
+
+        partidosHoy++;
+
+        // 🔹 cada 4 partidos cambia el día
+        if(partidosHoy == 4) {
+            partidosHoy = 0;
+            dia++;
+        }
+    }
+}
+
+
+void Mundial::jugarOctavos() {
+
+    cout << "\n===== OCTAVOS DE FINAL =====\n";
+
+    int k = 0;
+    int dia = 14;
+    int mes = 7;
+    int partidosHoy = 0;
+
+    for(int i = 0; i < 16; i += 2) {
+
+        if(partidosHoy == 0) {
+            cout << "\n" << dia << "/" << mes << ":\n";
+        }
+
+        Partido p(ganadores32[i], ganadores32[i+1]);
+        p.simular();
+
+        if(p.getGoles1() == p.getGoles2()) {
+            cout << "  (Empate -> penales)\n";
+            if(rand()%2 == 0) p.setGoles1(p.getGoles1()+1);
+            else p.setGoles2(p.getGoles2()+1);
+        }
+
+        p.mostrar();
+
+        if(p.getGoles1() > p.getGoles2())
+            ganadores16[k++] = ganadores32[i];
+        else
+            ganadores16[k++] = ganadores32[i+1];
+
+        partidosHoy++;
+
+        if(partidosHoy == 2) { // 2 partidos por día
+            partidosHoy = 0;
+            dia++;
+        }
+    }
+}
+
+/*void Mundial::jugarOctavos() {
+
+    cout << "\n===== OCTAVOS DE FINAL =====\n";
+
+    int dia = 10;
+    int mes = 7;
+    int k = 0;
+
+    for(int i = 0; i < 12; i += 2) {
+
+        cout << "\n" << dia << "/" << mes << ":\n";
+
+        Equipo* A1 = grupos[i].getEquipo(0);
+        Equipo* A2 = grupos[i].getEquipo(1);
+
+        Equipo* B1 = grupos[i+1].getEquipo(0);
+        Equipo* B2 = grupos[i+1].getEquipo(1);
+
+        // 🔹 Partido 1
+        Partido p1(A1, B2);
+        p1.simular();
+
+        if(p1.getGoles1() == p1.getGoles2()) {
+            cout << "  (Empate -> penales)\n";
+            if(rand() % 2 == 0)
+                p1.setGoles1(p1.getGoles1() + 1);
+            else
+                p1.setGoles2(p1.getGoles2() + 1);
+        }
+
+        p1.mostrar();
+
+        // guardar ganador
+        if(p1.getGoles1() > p1.getGoles2())
+            ganadoresOctavos[k++] = A1;
+        else
+            ganadoresOctavos[k++] = B2;
+
+        // 🔹 Partido 2
+        Partido p2(B1, A2);
+        p2.simular();
+
+        if(p2.getGoles1() == p2.getGoles2()) {
+            cout << "  (Empate -> penales)\n";
+            if(rand() % 2 == 0)
+                p2.setGoles1(p2.getGoles1() + 1);
+            else
+                p2.setGoles2(p2.getGoles2() + 1);
+        }
+
+        p2.mostrar();
+
+        // guardar ganador
+        if(p2.getGoles1() > p2.getGoles2())
+            ganadoresOctavos[k++] = B1;
+        else
+            ganadoresOctavos[k++] = A2;
+
+        dia++;
+    }
+}*/
+
+void Mundial::jugarCuartos() {
+
+    cout << "\n===== CUARTOS DE FINAL =====\n";
+
+    int k = 0;
+    int dia = 18;
+    int mes = 7;
+    int partidosHoy = 0;
+
+    for(int i = 0; i < 8; i += 2) {
+
+        if(partidosHoy == 0) {
+            cout << "\n" << dia << "/" << mes << ":\n";
+        }
+
+        Partido p(ganadores16[i], ganadores16[i+1]);
+        p.simular();
+
+        if(p.getGoles1() == p.getGoles2()) {
+            cout << "  (Empate -> penales)\n";
+            if(rand()%2 == 0) p.setGoles1(p.getGoles1()+1);
+            else p.setGoles2(p.getGoles2()+1);
+        }
+
+        p.mostrar();
+
+        if(p.getGoles1() > p.getGoles2())
+            ganadores8[k++] = ganadores16[i];
+        else
+            ganadores8[k++] = ganadores16[i+1];
+
+        partidosHoy++;
+
+        if(partidosHoy == 2) {
+            partidosHoy = 0;
+            dia++;
+        }
+    }
+}
+
+void Mundial::jugarSemifinal() {
+
+    cout << "\n===== SEMIFINAL =====\n";
+
+    int dia = 21;
+    int mes = 7;
+
+    int k = 0;
+
+    for(int i = 0; i < 4; i += 2) {
+
+        cout << "\n" << dia++ << "/" << mes << ":\n";
+
+        Partido p(ganadores8[i], ganadores8[i+1]);
+        p.simular();
+
+        if(p.getGoles1() == p.getGoles2()) {
+            cout << "  (Empate -> penales)\n";
+            if(rand()%2 == 0) p.setGoles1(p.getGoles1()+1);
+            else p.setGoles2(p.getGoles2()+1);
+        }
+
+        p.mostrar();
+
+        if(p.getGoles1() > p.getGoles2()) {
+            finalistas[k] = ganadores8[i];
+            perdedoresSemi[k] = ganadores8[i+1];
+        } else {
+            finalistas[k] = ganadores8[i+1];
+            perdedoresSemi[k] = ganadores8[i];
+        }
+
+        k++;
+    }
+}
+
+void Mundial::jugarFinal() {
+
+    int mes = 7;
+
+    cout << "\n===== TERCER PUESTO =====\n";
+    cout << "\n25/" << mes << ":\n";
+
+    Partido tercer(perdedoresSemi[0], perdedoresSemi[1]);
+    tercer.simular();
+
+    if(tercer.getGoles1() == tercer.getGoles2()) {
+        if(rand()%2 == 0) tercer.setGoles1(tercer.getGoles1()+1);
+        else tercer.setGoles2(tercer.getGoles2()+1);
+    }
+
+    tercer.mostrar();
+
+    cout << "\n===== FINAL =====\n";
+    cout << "\n26/" << mes << ":\n";
+
+    Partido final(finalistas[0], finalistas[1]);
+    final.simular();
+
+    if(final.getGoles1() == final.getGoles2()) {
+        if(rand()%2 == 0) final.setGoles1(final.getGoles1()+1);
+        else final.setGoles2(final.getGoles2()+1);
+    }
+
+    final.mostrar();
+
+    if(final.getGoles1() > final.getGoles2())
+        cout << "\n🏆 CAMPEON: " << finalistas[0]->getNombre() << endl;
+    else
+        cout << "\n🏆 CAMPEON: " << finalistas[1]->getNombre() << endl;
+}
+
+/*void Mundial::jugarCuartos() {
+
+    cout << "\n===== CUARTOS DE FINAL =====\n";
+
+    int dia = 16;  // 🔥 empieza justo después de octavos
+    int mes = 7;
+
+    int partidosEnDia = 0;
+
+    for(int i = 0; i < 12; i += 2) {
+
+        if(partidosEnDia == 0) {
+            cout << "\n" << dia << "/" << mes << ":\n";
+        }
+
+        Partido p(ganadoresOctavos[i], ganadoresOctavos[i+1]);
+        p.simular();
+
+        if(p.getGoles1() == p.getGoles2()) {
+            cout << "  (Empate -> penales)\n";
+            if(rand() % 2 == 0)
+                p.setGoles1(p.getGoles1() + 1);
+            else
+                p.setGoles2(p.getGoles2() + 1);
+        }
+
+        p.mostrar();
+
+        partidosEnDia++;
+
+        if(partidosEnDia == 2) {
+            partidosEnDia = 0;
+            dia++;
+        }
+    }
+}*/

@@ -89,3 +89,19 @@ void Partido::mostrar() {
     << equipo2->getNombre()
     << endl;
 }
+
+int Partido::getGoles1() {
+    return goles1;
+}
+
+int Partido::getGoles2() {
+    return goles2;
+}
+
+void Partido::setGoles1(int g) {
+    goles1 = g;
+}
+
+void Partido::setGoles2(int g) {
+    goles2 = g;
+}

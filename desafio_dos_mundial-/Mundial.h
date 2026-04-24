@@ -36,6 +36,8 @@ public:
     void mostrarGrupos();
     void sortearGrupos();
     void programarFaseGrupos();
+    void simularFaseGrupos();
+    void clasificarEquipos();
 
 };
 

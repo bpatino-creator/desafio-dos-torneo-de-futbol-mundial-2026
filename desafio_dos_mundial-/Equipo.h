@@ -20,6 +20,8 @@ private:
     int empatados;
     int perdidos;
 
+
+
     Jugador* jugadores;
     int cantidadJugadores;
 
@@ -38,6 +40,13 @@ public:
     int getRanking();
     void mostrarSimple();
     string getConfederacion();
+    // 🔥 AGREGA ESTO
+    void sumarPuntos(int p);
+    void sumarGolesFavor(int g);
+    void sumarGolesContra(int g);
+    int getGolesFavor();
+    int getGolesContra();
+    void reiniciarEstadisticas();
 };
 
 #endif

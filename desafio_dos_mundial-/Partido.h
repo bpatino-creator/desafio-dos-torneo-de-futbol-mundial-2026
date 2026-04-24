@@ -17,8 +17,8 @@ public:
     Partido(Equipo* e1, Equipo* e2);
 
     void simular();
-    void mostrar();
     void actualizarEquipos();
+    void mostrar();
 };
 
 #endif

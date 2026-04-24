@@ -27,6 +27,8 @@ public:
     int getCantidadEquipos();
     Equipo* getEquipo(int i);
     void mostrarSimple();
+    void simularPartidos();
+
 };
 
 #endif

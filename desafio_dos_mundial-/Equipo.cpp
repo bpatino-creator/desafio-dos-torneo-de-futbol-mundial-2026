@@ -100,3 +100,23 @@ void Equipo::mostrarSimple() {
 string Equipo::getConfederacion() {
     return confederacion;
 }
+void Equipo::sumarPuntos(int p) {
+    puntos += p;
+}
+
+void Equipo::sumarGolesFavor(int g) {
+    golesFavor += g;
+}
+
+void Equipo::sumarGolesContra(int g) {
+    golesContra += g;
+}
+
+int Equipo::getRanking() {
+    return ranking;
+}
+void Equipo::reiniciarEstadisticas() {
+    puntos = 0;
+    golesFavor = 0;
+    golesContra = 0;
+}

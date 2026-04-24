@@ -64,6 +64,8 @@ int main() {
     m.sortearGrupos();
     m.mostrarGrupos();
     m.programarFaseGrupos();
+    m.simularFaseGrupos();
+    m.clasificarEquipos();
 
     return 0;
 }

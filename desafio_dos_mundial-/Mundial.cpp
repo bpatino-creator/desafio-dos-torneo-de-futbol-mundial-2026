@@ -249,52 +249,119 @@ void Mundial::programarFaseGrupos() {
 
     cout << "\n===== PROGRAMANDO FASE DE GRUPOS =====\n";
 
-    int partidosPorDia[30] = {0};
-    int dia = 0;
-    int total = 0;
+    // días por jornada
+    int dias[3][6] = {
+        {20,21,22,23,24,25},   // junio
+        {27,28,29,30,1,2},     // mezcla junio/julio
+        {4,5,6,7,8,9}          // julio
+    };
 
-    int diaInicio = 20;
-    int mes = 6;
+    // meses correspondientes
+    int meses[3][6] = {
+        {6,6,6,6,6,6},
+        {6,6,6,6,7,7},
+        {7,7,7,7,7,7}
+    };
 
-    cout << "\n";
+    // 🔹 recorrer jornadas
+    for(int fecha = 0; fecha < 3; fecha++) {
 
-    for(int g = 0; g < 12; g++) {
+        cout << "\n===== FECHA " << fecha + 1 << " =====\n";
 
-        Grupo& grupo = grupos[g];
+        int diaIdx = 0;
+        int partidosHoy = 0;
 
-        for(int i = 0; i < 4; i++) {
-            for(int j = i + 1; j < 4; j++) {
+        for(int g = 0; g < 12; g++) {
 
-                // 🔹 si el día está lleno → siguiente día
-                if(partidosPorDia[dia] == 4) {
-                    dia++;
-                    diaInicio++;
+            Grupo& grupo = grupos[g];
 
-                    if(diaInicio > 30 && mes == 6) {
-                        diaInicio = 1;
-                        mes = 7;
-                    }
+            Equipo* A = grupo.getEquipo(0);
+            Equipo* B = grupo.getEquipo(1);
+            Equipo* C = grupo.getEquipo(2);
+            Equipo* D = grupo.getEquipo(3);
 
-                    cout << "\n"; // salto de día
-                }
+            Equipo *e1, *e2, *e3, *e4;
 
-                // 🔹 imprimir fecha si es el primer partido del día
-                if(partidosPorDia[dia] == 0) {
-                    cout << diaInicio << "/" << mes << ":\n";
-                }
+            // fixture correcto
+            if(fecha == 0) {
+                e1 = A; e2 = B;
+                e3 = C; e4 = D;
+            }
+            else if(fecha == 1) {
+                e1 = A; e2 = C;
+                e3 = B; e4 = D;
+            }
+            else {
+                e1 = A; e2 = D;
+                e3 = B; e4 = C;
+            }
 
-                // 🔥 imprimir partido
-                cout << "  "
-                     << grupo.getEquipo(i)->getNombre()
-                     << " vs "
-                     << grupo.getEquipo(j)->getNombre()
-                     << endl;
+            int d = dias[fecha][diaIdx];
+            int m = meses[fecha][diaIdx];
 
-                partidosPorDia[dia]++;
-                total++;
+            // ---- Partido 1 ----
+            if(partidosHoy == 0) {
+                cout << "\n" << d << "/" << m << ":\n";
+            }
+
+            cout << "  " << e1->getNombre() << " vs " << e2->getNombre() << endl;
+            partidosHoy++;
+
+            if(partidosHoy == 4) {
+                partidosHoy = 0;
+                diaIdx++;
+            }
+
+            // actualizar día si cambió
+            d = dias[fecha][diaIdx];
+            m = meses[fecha][diaIdx];
+
+            // ---- Partido 2 ----
+            if(partidosHoy == 0) {
+                cout << "\n" << d << "/" << m << ":\n";
+            }
+
+            cout << "  " << e3->getNombre() << " vs " << e4->getNombre() << endl;
+            partidosHoy++;
+
+            if(partidosHoy == 4) {
+                partidosHoy = 0;
+                diaIdx++;
             }
         }
     }
+}
 
-    cout << "\nTotal: " << total << " partidos\n";
+void Mundial::simularFaseGrupos() {
+
+    // 🔥 REINICIAR ANTES
+    for(int i = 0; i < 12; i++) {
+        for(int j = 0; j < 4; j++) {
+            grupos[i].getEquipo(j)->reiniciarEstadisticas();
+        }
+    }
+
+    // 🔹 SIMULAR
+    for(int i = 0; i < 12; i++) {
+        grupos[i].simularPartidos();
+        grupos[i].mostrarTabla();
+    }
+}
+
+void Mundial::clasificarEquipos() {
+
+    cout << "\n===== CLASIFICADOS A OCTAVOS =====\n";
+
+    for(int i = 0; i < 12; i++) {
+
+        cout << "Grupo " << char('A' + i) << ": ";
+
+        Equipo* primero = grupos[i].getEquipo(0);
+        Equipo* segundo = grupos[i].getEquipo(1);
+
+        cout << primero->getNombre()
+             << " y "
+             << segundo->getNombre()
+             << endl;
+    }
 }

@@ -12,7 +12,6 @@ private:
 public:
     Jugador();
     Jugador(string nombre, int numero);
-
     void mostrar();
 };
 

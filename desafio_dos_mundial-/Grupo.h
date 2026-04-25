@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include "Equipo.h"
-
 using namespace std;
 
 class Grupo {
@@ -11,10 +10,6 @@ private:
     char letra;
     Equipo* equipos[4];
     int cantidadEquipos;
-    int puntos;
-    int ganados;
-    int empatados;
-    int perdidos;
 
 public:
     Grupo(char l);
@@ -22,13 +17,11 @@ public:
 
     void agregarEquipo(Equipo* e);
     void mostrar();
-    void jugarPartidos();
+    void mostrarSimple();
     void mostrarTabla();
+    void simularPartidos();
     int getCantidadEquipos();
     Equipo* getEquipo(int i);
-    void mostrarSimple();
-    void simularPartidos();
-
 };
 
 #endif

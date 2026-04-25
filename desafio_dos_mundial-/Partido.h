@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include "Equipo.h"
-
 using namespace std;
 
 class Partido {
@@ -16,14 +15,13 @@ private:
 public:
     Partido(Equipo* e1, Equipo* e2);
 
-    int getGoles1();
-    int getGoles2();
-
-    void setGoles1(int g);
-    void setGoles2(int g);
     void simular();
     void actualizarEquipos();
     void mostrar();
+    int getGoles1();
+    int getGoles2();
+    void setGoles1(int g);
+    void setGoles2(int g);
 };
 
 #endif

@@ -246,7 +246,7 @@ void Mundial::sortearGrupos() {
     }
 }
 
-void Mundial::programarFaseGrupos() {
+/*void Mundial::programarFaseGrupos() {
 
     cout << "\n===== PROGRAMANDO FASE DE GRUPOS =====\n";
 
@@ -332,8 +332,91 @@ void Mundial::programarFaseGrupos() {
             }
         }
     }
-}
+}*/
 
+void Mundial::programarFaseGrupos() {
+
+    cout << "\n===== PROGRAMANDO FASE DE GRUPOS =====\n";
+
+    // 🔥 DIAS CORRECTOS
+    int dias[3][6] = {
+        {20,21,22,23,24,25},   // Fecha 1
+        {23,24,25,26,27,28},   // Fecha 2
+        {26,27,28,29,30,1}     // Fecha 3 (ya pasa a julio)
+    };
+
+    // 🔥 MESES CORRECTOS
+    int meses[3][6] = {
+        {6,6,6,6,6,6},
+        {6,6,6,6,6,6},
+        {6,6,6,6,6,7}   // 👈 este 7 arregla TODO
+    };
+
+    for(int fecha = 0; fecha < 3; fecha++) {
+
+        cout << "\n===== FECHA " << fecha + 1 << " =====\n";
+
+        int diaIdx = 0;
+        int partidosHoy = 0;
+
+        for(int g = 0; g < 12; g++) {
+
+            Grupo& grupo = grupos[g];
+
+            Equipo* A = grupo.getEquipo(0);
+            Equipo* B = grupo.getEquipo(1);
+            Equipo* C = grupo.getEquipo(2);
+            Equipo* D = grupo.getEquipo(3);
+
+            Equipo *e1, *e2, *e3, *e4;
+
+            if(fecha == 0) {
+                e1 = A; e2 = B;
+                e3 = C; e4 = D;
+            }
+            else if(fecha == 1) {
+                e1 = A; e2 = C;
+                e3 = B; e4 = D;
+            }
+            else {
+                e1 = A; e2 = D;
+                e3 = B; e4 = C;
+            }
+
+            int d = dias[fecha][diaIdx];
+            int m = meses[fecha][diaIdx];
+
+            // Partido 1
+            if(partidosHoy == 0) {
+                cout << "\n" << d << "/" << m << ":\n";
+            }
+
+            cout << "  " << e1->getNombre() << " vs " << e2->getNombre() << endl;
+            partidosHoy++;
+
+            if(partidosHoy == 4) {
+                partidosHoy = 0;
+                diaIdx++;
+            }
+
+            d = dias[fecha][diaIdx];
+            m = meses[fecha][diaIdx];
+
+            // Partido 2
+            if(partidosHoy == 0) {
+                cout << "\n" << d << "/" << m << ":\n";
+            }
+
+            cout << "  " << e3->getNombre() << " vs " << e4->getNombre() << endl;
+            partidosHoy++;
+
+            if(partidosHoy == 4) {
+                partidosHoy = 0;
+                diaIdx++;
+            }
+        }
+    }
+}
 void Mundial::simularFaseGrupos() {
 
     // 🔥 REINICIAR ANTES
@@ -399,15 +482,14 @@ void Mundial::jugarRonda32() {
 
     cout << "\n===== RONDA DE 32 =====\n";
 
-
     int k = 0;
-    int dia = 10;
+    int dia = 4;   // 🔥 EMPIEZA DESPUÉS DEL DESCANSO
     int mes = 7;
     int partidosHoy = 0;
 
     for(int i = 0; i < 32; i += 2) {
 
-        // 🔹 imprimir fecha cuando inicia el día
+        // 🔹 imprimir fecha
         if(partidosHoy == 0) {
             cout << "\n" << dia << "/" << mes << ":\n";
         }
@@ -415,6 +497,7 @@ void Mundial::jugarRonda32() {
         Partido p(clasificados[i], clasificados[i+1]);
         p.simular();
 
+        // 🔥 penales
         if(p.getGoles1() == p.getGoles2()) {
             cout << "  (Empate -> penales)\n";
             if(rand()%2 == 0)
@@ -425,7 +508,7 @@ void Mundial::jugarRonda32() {
 
         p.mostrar();
 
-        // guardar ganador
+        // 🔹 guardar ganador
         if(p.getGoles1() > p.getGoles2())
             ganadores32[k++] = clasificados[i];
         else
@@ -433,7 +516,7 @@ void Mundial::jugarRonda32() {
 
         partidosHoy++;
 
-        // 🔹 cada 4 partidos cambia el día
+        // 🔹 cada 4 partidos → nuevo día
         if(partidosHoy == 4) {
             partidosHoy = 0;
             dia++;
@@ -447,12 +530,13 @@ void Mundial::jugarOctavos() {
     cout << "\n===== OCTAVOS DE FINAL =====\n";
 
     int k = 0;
-    int dia = 14;
+    int dia = 8;   // 🔥 DESPUÉS DEL DESCANSO
     int mes = 7;
     int partidosHoy = 0;
 
     for(int i = 0; i < 16; i += 2) {
 
+        // 🔹 imprimir fecha
         if(partidosHoy == 0) {
             cout << "\n" << dia << "/" << mes << ":\n";
         }
@@ -460,14 +544,18 @@ void Mundial::jugarOctavos() {
         Partido p(ganadores32[i], ganadores32[i+1]);
         p.simular();
 
+        // 🔥 penales
         if(p.getGoles1() == p.getGoles2()) {
             cout << "  (Empate -> penales)\n";
-            if(rand()%2 == 0) p.setGoles1(p.getGoles1()+1);
-            else p.setGoles2(p.getGoles2()+1);
+            if(rand()%2 == 0)
+                p.setGoles1(p.getGoles1()+1);
+            else
+                p.setGoles2(p.getGoles2()+1);
         }
 
         p.mostrar();
 
+        // 🔹 guardar ganador
         if(p.getGoles1() > p.getGoles2())
             ganadores16[k++] = ganadores32[i];
         else
@@ -475,7 +563,8 @@ void Mundial::jugarOctavos() {
 
         partidosHoy++;
 
-        if(partidosHoy == 2) { // 2 partidos por día
+        // 🔹 2 partidos por día
+        if(partidosHoy == 2) {
             partidosHoy = 0;
             dia++;
         }
@@ -549,7 +638,7 @@ void Mundial::jugarCuartos() {
     cout << "\n===== CUARTOS DE FINAL =====\n";
 
     int k = 0;
-    int dia = 18;
+    int dia = 13;   // 🔥 CORREGIDO
     int mes = 7;
     int partidosHoy = 0;
 
@@ -588,7 +677,7 @@ void Mundial::jugarSemifinal() {
 
     cout << "\n===== SEMIFINAL =====\n";
 
-    int dia = 21;
+    int dia = 16;
     int mes = 7;
 
     int k = 0;
@@ -625,7 +714,7 @@ void Mundial::jugarFinal() {
     int mes = 7;
 
     cout << "\n===== TERCER PUESTO =====\n";
-    cout << "\n25/" << mes << ":\n";
+    cout << "\n20/" << mes << ":\n";
 
     Partido tercer(perdedoresSemi[0], perdedoresSemi[1]);
     tercer.simular();
@@ -638,7 +727,7 @@ void Mundial::jugarFinal() {
     tercer.mostrar();
 
     cout << "\n===== FINAL =====\n";
-    cout << "\n26/" << mes << ":\n";
+    cout << "\n21/" << mes << ":\n";
 
     Partido final(finalistas[0], finalistas[1]);
     final.simular();

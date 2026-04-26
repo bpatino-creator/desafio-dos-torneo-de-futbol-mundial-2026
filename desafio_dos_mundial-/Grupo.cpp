@@ -1,16 +1,20 @@
 #include "Grupo.h"
 #include "Partido.h"
 
+// Constructor con letra: inicializa el grupo sin equipos
 Grupo::Grupo(char l) {
     letra = l;
     cantidadEquipos = 0;
 }
 
+// Constructor vacio: usa '?' como letra hasta que se asigne una
 Grupo::Grupo() {
     letra = '?';
     cantidadEquipos = 0;
 }
 
+// Agrega un equipo al grupo guardando su puntero
+// solo acepta hasta 4 equipos
 void Grupo::agregarEquipo(Equipo* e) {
     if (cantidadEquipos < 4) {
         equipos[cantidadEquipos] = e;
@@ -18,12 +22,14 @@ void Grupo::agregarEquipo(Equipo* e) {
     }
 }
 
+// Muestra el grupo con todos los datos de cada equipo
 void Grupo::mostrar() {
     cout << "Grupo " << letra << endl;
     for (int i = 0; i < cantidadEquipos; i++)
         equipos[i]->mostrar();
 }
 
+// Muestra el grupo en una sola linea con nombre y confederacion de cada equipo
 void Grupo::mostrarSimple() {
     cout << "Grupo " << letra << ": ";
     for (int i = 0; i < cantidadEquipos; i++) {
@@ -34,28 +40,36 @@ void Grupo::mostrarSimple() {
     cout << endl;
 }
 
+// Simula los 6 partidos del grupo (todos juegan contra todos una vez)
 void Grupo::simularPartidos() {
     cout << "\n--- Grupo " << letra << " ---\n";
 
+    // Guarda los 4 equipos en variables para mayor claridad
     Equipo* A = equipos[0];
     Equipo* B = equipos[1];
     Equipo* C = equipos[2];
     Equipo* D = equipos[3];
 
+    // Fecha 1: A vs B y C vs D
     cout << "\nFecha 1:\n";
     Partido p1(A, B); p1.simular(); p1.actualizarEquipos(); p1.mostrar();
     Partido p2(C, D); p2.simular(); p2.actualizarEquipos(); p2.mostrar();
 
+    // Fecha 2: A vs C y B vs D
     cout << "\nFecha 2:\n";
     Partido p3(A, C); p3.simular(); p3.actualizarEquipos(); p3.mostrar();
     Partido p4(B, D); p4.simular(); p4.actualizarEquipos(); p4.mostrar();
 
+    // Fecha 3: A vs D y B vs C
     cout << "\nFecha 3:\n";
     Partido p5(A, D); p5.simular(); p5.actualizarEquipos(); p5.mostrar();
     Partido p6(B, C); p6.simular(); p6.actualizarEquipos(); p6.mostrar();
 }
 
+// Ordena los equipos y muestra la tabla de posiciones
 void Grupo::mostrarTabla() {
+    // Ordena con burbuja usando los criterios de la FIFA:
+    // 1. puntos, 2. diferencia de goles, 3. goles a favor
     for (int i = 0; i < cantidadEquipos - 1; i++) {
         for (int j = i + 1; j < cantidadEquipos; j++) {
             int pts_i = equipos[i]->getPuntos();
@@ -68,6 +82,7 @@ void Grupo::mostrarTabla() {
             if (pts_j > pts_i ||
                 (pts_j == pts_i && dg_j > dg_i) ||
                 (pts_j == pts_i && dg_j == dg_i && gf_j > gf_i)) {
+                // Intercambia punteros, no objetos completos
                 Equipo* temp = equipos[i];
                 equipos[i] = equipos[j];
                 equipos[j] = temp;
@@ -75,6 +90,7 @@ void Grupo::mostrarTabla() {
         }
     }
 
+    // Muestra la tabla ya ordenada
     cout << "\nTabla Grupo " << letra << endl;
     for (int i = 0; i < cantidadEquipos; i++) {
         int dg = equipos[i]->getGolesFavor() - equipos[i]->getGolesContra();

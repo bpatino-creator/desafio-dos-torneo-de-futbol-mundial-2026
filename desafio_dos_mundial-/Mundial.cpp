@@ -3,18 +3,20 @@
 #include <fstream>
 #include <cstdlib>
 
+// Constructor: crea toda la memoria dinamica e inicializa la semilla aleatoria
 Mundial::Mundial() {
     totalEquipos = 0;
-    equipos = new Equipo[50];
+    equipos = new Equipo[50];   // espacio para hasta 50 equipos
     bombo1 = new Equipo[12];
     bombo2 = new Equipo[12];
     bombo3 = new Equipo[12];
     bombo4 = new Equipo[12];
     grupos = new Grupo[12];
     campeonFinal = nullptr;
-    srand(42);
+    srand(42); // semilla fija para que el sorteo sea reproducible
 }
 
+// Destructor: libera toda la memoria creada en el constructor
 Mundial::~Mundial() {
     delete[] equipos;
     delete[] bombo1;
@@ -24,6 +26,7 @@ Mundial::~Mundial() {
     delete[] grupos;
 }
 
+// Lee los equipos desde el archivo CSV y los guarda en el arreglo
 void Mundial::cargarEquipos() {
     static int iteraciones = 0;
 
@@ -38,6 +41,7 @@ void Mundial::cargarEquipos() {
     char conf[20];
     int ranking, gf, gc;
 
+    // Lee linea por linea hasta terminar el archivo
     while (archivo.getline(nombre, 50, ',')) {
         archivo.getline(conf, 20, ',');
         archivo >> ranking;
@@ -47,6 +51,7 @@ void Mundial::cargarEquipos() {
         archivo >> gc;
         archivo.ignore();
 
+        // Crea el equipo con los datos leidos y lo guarda
         equipos[totalEquipos] = Equipo(nombre, conf, ranking, gf, gc);
         totalEquipos++;
         iteraciones++;
@@ -57,17 +62,20 @@ void Mundial::cargarEquipos() {
     cout << "Memoria: " << sizeof(Equipo) * totalEquipos << " bytes" << endl;
 }
 
+// Muestra todos los equipos con sus datos completos
 void Mundial::mostrarEquipos() {
     for (int i = 0; i < totalEquipos; i++)
         equipos[i].mostrar();
 }
 
+// Ordena los equipos de menor a mayor ranking usando burbuja
 void Mundial::ordenarPorRanking() {
     static int iteraciones = 0;
 
     for (int i = 0; i < totalEquipos - 1; i++) {
         for (int j = 0; j < totalEquipos - 1 - i; j++) {
             iteraciones++;
+            // Si el equipo actual tiene peor ranking que el siguiente, los intercambia
             if (equipos[j].getRanking() > equipos[j + 1].getRanking()) {
                 Equipo temp = equipos[j];
                 equipos[j] = equipos[j + 1];
@@ -81,10 +89,12 @@ void Mundial::ordenarPorRanking() {
     cout << "Memoria: " << sizeof(Equipo) * totalEquipos << " bytes" << endl;
 }
 
+// Divide los 48 equipos en 4 bombos de 12 segun su ranking
 void Mundial::crearBombos() {
     static int iteraciones = 0;
     int posUSA = -1;
 
+    // Busca la posicion de Estados Unidos para ponerlo directo en el bombo 1
     for (int i = 0; i < totalEquipos; i++) {
         iteraciones++;
         if (equipos[i].getNombre() == "United States") {
@@ -95,12 +105,14 @@ void Mundial::crearBombos() {
 
     int indice = 0;
 
+    // USA va directo al bombo 1 por ser el pais sede
     if (posUSA != -1)
         bombo1[0] = equipos[posUSA];
 
+    // Reparte los demas equipos en los 4 bombos segun su ranking
     for (int i = 0; i < totalEquipos; i++) {
         iteraciones++;
-        if (i == posUSA) continue;
+        if (i == posUSA) continue; // salta a USA porque ya fue asignado
 
         if (indice < 11)
             bombo1[indice + 1] = equipos[i];
@@ -120,6 +132,7 @@ void Mundial::crearBombos() {
     cout << "Memoria: " << sizeof(Equipo) * 48 + sizeof(Grupo) * 12 << " bytes" << endl;
 }
 
+// Muestra los 4 bombos con nombre y ranking de cada equipo
 void Mundial::mostrarBombos() {
     cout << "\n=========== BOMBOS ===========\n";
 
@@ -136,6 +149,7 @@ void Mundial::mostrarBombos() {
     for (int i = 0; i < 12; i++) bombo4[i].mostrarSimple();
 }
 
+// Crea los 12 grupos vacios con sus letras de la A a la L
 void Mundial::crearGrupos() {
     char letra = 'A';
     for (int i = 0; i < 12; i++) {
@@ -144,6 +158,8 @@ void Mundial::crearGrupos() {
     }
 }
 
+// Verifica si un equipo puede entrar a un grupo segun su confederacion
+// UEFA puede tener maximo 2 equipos, las demas solo 1
 bool puedeEntrar(Grupo& g, string conf) {
     int conteo = 0;
     int uefa = 0;
@@ -158,6 +174,7 @@ bool puedeEntrar(Grupo& g, string conf) {
     return conteo == 0;
 }
 
+// Baraja un bombo de forma aleatoria usando el algoritmo de Fisher-Yates
 void barajar(Equipo bombo[], int n) {
     for (int i = n - 1; i > 0; i--) {
         int j = rand() % (i + 1);
@@ -167,10 +184,13 @@ void barajar(Equipo bombo[], int n) {
     }
 }
 
+// Sortea los grupos respetando las restricciones de confederacion
+// Si no logra ubicar algun equipo, repite el sorteo completo
 void Mundial::sortearGrupos() {
     bool valido = false;
 
     while (!valido) {
+        // Reinicia los grupos y baraja los bombos
         for (int i = 0; i < 12; i++)
             grupos[i] = Grupo('A' + i);
 
@@ -179,11 +199,13 @@ void Mundial::sortearGrupos() {
         barajar(bombo3, 12);
         barajar(bombo4, 12);
 
+        // Primero asigna un equipo del bombo 1 a cada grupo
         for (int i = 0; i < 12; i++)
             grupos[i].agregarEquipo(&bombo1[i]);
 
         bool fallo = false;
 
+        // Intenta ubicar cada equipo en un grupo aleatorio hasta 50 veces
         auto asignar = [&](Equipo bombo[]) {
             for (int i = 0; i < 12; i++) {
                 bool colocado = false;
@@ -199,6 +221,7 @@ void Mundial::sortearGrupos() {
                     intentos++;
                 }
 
+                // Si no pudo ubicar el equipo marca fallo y sale
                 if (!colocado) {
                     fallo = true;
                     return;
@@ -206,6 +229,7 @@ void Mundial::sortearGrupos() {
             }
         };
 
+        // Asigna bombo por bombo, si hay fallo reinicia todo
         asignar(bombo2); if (fallo) continue;
         asignar(bombo3); if (fallo) continue;
         asignar(bombo4); if (fallo) continue;
@@ -214,15 +238,18 @@ void Mundial::sortearGrupos() {
     }
 }
 
+// Muestra los 12 grupos con sus equipos y confederaciones
 void Mundial::mostrarGrupos() {
     cout << "\n=========== GRUPOS ===========\n";
     for (int i = 0; i < 12; i++)
         grupos[i].mostrarSimple();
 }
 
+// Asigna fechas a los partidos respetando el limite de 4 partidos por dia
 void Mundial::programarFaseGrupos() {
     cout << "\n===== PROGRAMANDO FASE DE GRUPOS =====\n";
 
+    // Fechas de cada jornada para los 6 dias disponibles
     int dias[3][6] = {
         {20,21,22,23,24,25},
         {23,24,25,26,27,28},
@@ -251,6 +278,7 @@ void Mundial::programarFaseGrupos() {
 
             Equipo *e1, *e2, *e3, *e4;
 
+            // Cambia los emparejamientos segun la fecha para que todos jueguen contra todos
             if (fecha == 0) { e1 = A; e2 = B; e3 = C; e4 = D; }
             else if (fecha == 1) { e1 = A; e2 = C; e3 = B; e4 = D; }
             else { e1 = A; e2 = D; e3 = B; e4 = C; }
@@ -264,6 +292,7 @@ void Mundial::programarFaseGrupos() {
             cout << "  " << e1->getNombre() << " vs " << e2->getNombre() << endl;
             partidosHoy++;
 
+            // Cambia de dia cuando se llega al limite de 4 partidos
             if (partidosHoy == 4) { partidosHoy = 0; diaIdx++; }
 
             d = dias[fecha][diaIdx];
@@ -280,9 +309,11 @@ void Mundial::programarFaseGrupos() {
     }
 }
 
+// Reinicia estadisticas y simula los 72 partidos de la fase de grupos
 void Mundial::simularFaseGrupos() {
     static int iteraciones = 0;
 
+    // Reinicia puntos y goles de todos los equipos antes de simular
     for (int i = 0; i < 12; i++) {
         for (int j = 0; j < 4; j++) {
             iteraciones++;
@@ -290,6 +321,7 @@ void Mundial::simularFaseGrupos() {
         }
     }
 
+    // Simula los partidos de cada grupo y muestra su tabla
     for (int i = 0; i < 12; i++) {
         iteraciones++;
         grupos[i].simularPartidos();
@@ -301,10 +333,12 @@ void Mundial::simularFaseGrupos() {
     cout << "Memoria: " << sizeof(Equipo) * 48 + sizeof(Grupo) * 12 << " bytes" << endl;
 }
 
+// Selecciona los 32 clasificados: 12 primeros, 12 segundos y 8 mejores terceros
 void Mundial::clasificarEquipos() {
     static int iteraciones = 0;
     int k = 0;
 
+    // Toma el primero y segundo de cada grupo directamente
     for (int i = 0; i < 12; i++) {
         iteraciones++;
         clasificados[k++] = grupos[i].getEquipo(0);
@@ -312,6 +346,7 @@ void Mundial::clasificarEquipos() {
         terceros[i] = grupos[i].getEquipo(2);
     }
 
+    // Ordena los 12 terceros para quedarse con los 8 mejores
     for (int i = 0; i < 11; i++) {
         for (int j = i + 1; j < 12; j++) {
             iteraciones++;
@@ -322,6 +357,7 @@ void Mundial::clasificarEquipos() {
             int gf_i = terceros[i]->getGolesFavor();
             int gf_j = terceros[j]->getGolesFavor();
 
+            // Criterios FIFA: puntos, diferencia de goles, goles a favor
             if (pts_j > pts_i ||
                 (pts_j == pts_i && dg_j > dg_i) ||
                 (pts_j == pts_i && dg_j == dg_i && gf_j > gf_i)) {
@@ -332,6 +368,7 @@ void Mundial::clasificarEquipos() {
         }
     }
 
+    // Agrega los 8 mejores terceros a los clasificados
     for (int i = 0; i < 8; i++) {
         iteraciones++;
         clasificados[k++] = terceros[i];
@@ -346,6 +383,7 @@ void Mundial::clasificarEquipos() {
     cout << "Memoria: " << sizeof(Equipo) * 48 + sizeof(Grupo) * 12 << " bytes" << endl;
 }
 
+// Simula los 16 partidos de dieciseisavos, rompe empates con penales
 void Mundial::jugarRonda32() {
     static int iteraciones = 0;
     cout << "\n===== RONDA DE 32 =====\n";
@@ -363,6 +401,7 @@ void Mundial::jugarRonda32() {
         Partido p(clasificados[i], clasificados[i+1]);
         p.simular();
 
+        // Si hay empate se define por penales con un aleatorio
         if (p.getGoles1() == p.getGoles2()) {
             cout << "  (Empate -> penales)\n";
             if (rand() % 2 == 0) p.setGoles1(p.getGoles1() + 1);
@@ -371,6 +410,7 @@ void Mundial::jugarRonda32() {
 
         p.mostrar();
 
+        // Guarda el ganador para la siguiente ronda
         if (p.getGoles1() > p.getGoles2()) ganadores32[k++] = clasificados[i];
         else ganadores32[k++] = clasificados[i+1];
 
@@ -383,6 +423,7 @@ void Mundial::jugarRonda32() {
     cout << "Memoria: " << sizeof(Equipo) * 48 + sizeof(Grupo) * 12 << " bytes" << endl;
 }
 
+// Simula los 8 partidos de octavos de final
 void Mundial::jugarOctavos() {
     static int iteraciones = 0;
     cout << "\n===== OCTAVOS DE FINAL =====\n";
@@ -400,6 +441,7 @@ void Mundial::jugarOctavos() {
         Partido p(ganadores32[i], ganadores32[i+1]);
         p.simular();
 
+        // Rompe empate con penales
         if (p.getGoles1() == p.getGoles2()) {
             cout << "  (Empate -> penales)\n";
             if (rand() % 2 == 0) p.setGoles1(p.getGoles1() + 1);
@@ -420,6 +462,7 @@ void Mundial::jugarOctavos() {
     cout << "Memoria: " << sizeof(Equipo) * 48 + sizeof(Grupo) * 12 << " bytes" << endl;
 }
 
+// Simula los 4 partidos de cuartos de final
 void Mundial::jugarCuartos() {
     static int iteraciones = 0;
     cout << "\n===== CUARTOS DE FINAL =====\n";
@@ -437,6 +480,7 @@ void Mundial::jugarCuartos() {
         Partido p(ganadores16[i], ganadores16[i+1]);
         p.simular();
 
+        // Rompe empate con penales
         if (p.getGoles1() == p.getGoles2()) {
             cout << "  (Empate -> penales)\n";
             if (rand() % 2 == 0) p.setGoles1(p.getGoles1() + 1);
@@ -457,6 +501,7 @@ void Mundial::jugarCuartos() {
     cout << "Memoria: " << sizeof(Equipo) * 48 + sizeof(Grupo) * 12 << " bytes" << endl;
 }
 
+// Simula las 2 semifinales y guarda finalistas y perdedores
 void Mundial::jugarSemifinal() {
     static int iteraciones = 0;
     cout << "\n===== SEMIFINAL =====\n";
@@ -472,6 +517,7 @@ void Mundial::jugarSemifinal() {
         Partido p(ganadores8[i], ganadores8[i+1]);
         p.simular();
 
+        // Rompe empate con penales
         if (p.getGoles1() == p.getGoles2()) {
             cout << "  (Empate -> penales)\n";
             if (rand() % 2 == 0) p.setGoles1(p.getGoles1() + 1);
@@ -480,6 +526,7 @@ void Mundial::jugarSemifinal() {
 
         p.mostrar();
 
+        // Guarda el ganador como finalista y el perdedor para el tercer puesto
         if (p.getGoles1() > p.getGoles2()) {
             finalistas[k] = ganadores8[i];
             perdedoresSemi[k] = ganadores8[i+1];
@@ -496,11 +543,11 @@ void Mundial::jugarSemifinal() {
     cout << "Memoria: " << sizeof(Equipo) * 48 + sizeof(Grupo) * 12 << " bytes" << endl;
 }
 
+// Muestra el podio final y el equipo con mas goles historicos
 void Mundial::mostrarEstadisticas() {
-
     cout << "\n===== ESTADISTICAS FINALES =====\n";
 
-    // Equipo con mas goles historicos
+    // Busca el equipo con mas goles en todo el torneo
     int maxGoles = 0;
     int idxMax = 0;
     for (int i = 0; i < totalEquipos; i++) {
@@ -513,7 +560,7 @@ void Mundial::mostrarEstadisticas() {
          << equipos[idxMax].getNombre()
          << " (" << maxGoles << " goles)\n";
 
-    // Top 4
+    // Determina el subcampeon comparando con el campeon
     Equipo* subcampeon = (campeonFinal == finalistas[0]) ? finalistas[1] : finalistas[0];
 
     cout << "\nPrimero:  " << campeonFinal->getNombre() << "\n";
@@ -522,15 +569,18 @@ void Mundial::mostrarEstadisticas() {
     cout << "Cuarto:   " << perdedoresSemi[1]->getNombre() << "\n";
 }
 
+// Simula el partido por el tercer puesto y la gran final
 void Mundial::jugarFinal() {
     int mes = 7;
 
+    // Tercer puesto: los dos perdedores de semifinal
     cout << "\n===== TERCER PUESTO =====\n";
     cout << "\n20/" << mes << ":\n";
 
     Partido tercer(perdedoresSemi[0], perdedoresSemi[1]);
     tercer.simular();
 
+    // Rompe empate con penales
     if (tercer.getGoles1() == tercer.getGoles2()) {
         if (rand() % 2 == 0) tercer.setGoles1(tercer.getGoles1() + 1);
         else tercer.setGoles2(tercer.getGoles2() + 1);
@@ -538,12 +588,14 @@ void Mundial::jugarFinal() {
 
     tercer.mostrar();
 
+    // Final: los dos finalistas
     cout << "\n===== FINAL =====\n";
     cout << "\n21/" << mes << ":\n";
 
     Partido final(finalistas[0], finalistas[1]);
     final.simular();
 
+    // Rompe empate con penales
     if (final.getGoles1() == final.getGoles2()) {
         if (rand() % 2 == 0) final.setGoles1(final.getGoles1() + 1);
         else final.setGoles2(final.getGoles2() + 1);
@@ -551,6 +603,7 @@ void Mundial::jugarFinal() {
 
     final.mostrar();
 
+    // Guarda el campeon segun quien haya ganado
     if (final.getGoles1() > final.getGoles2()) {
         campeonFinal = finalistas[0];
         cout << "\nCAMPEON: " << finalistas[0]->getNombre() << endl;
